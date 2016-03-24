@@ -1,0 +1,242 @@
+// *************************************
+//
+// # jigsass-tools-strings
+// -> String manipulation helper functions
+//
+// Author: TxHawks (tofu.hawks@gmail.com)
+//
+////
+/// @group Strings
+////
+//
+// *************************************
+
+@charset 'UTF-8';
+
+// -------------------------------------
+// Functions
+// -------------------------------------
+
+
+/// Convert a string representing a number
+/// into an actual number
+/// ---
+/// @param {String} $number-string
+/// ---
+/// @return {Number}
+/// ---
+@function jigsass-str-to-number($num-string) {
+  $numbers: ('0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9);
+  $units: (
+    'px': 1px,
+    'cm': 1cm,
+    'mm': 1mm,
+    '%': 1%,
+    'ch': 1ch,
+    'pc': 1pc,
+    'in': 1in,
+    'em': 1em,
+    'rem': 1rem,
+    'pt': 1pt,
+    'ex': 1ex,
+    'vw': 1vw,
+    'vh': 1vh,
+    'vmin': 1vmin,
+    'vmax': 1vmax
+  );
+  $neg: if(str-slice($num-string, 1, 1) == '-', -1, 1);
+  $chars: if($neg  == -1, str-slice($num-string, 2), $num-string);
+  $has-decimal: false;
+  $decimal: 1;
+  $num: 0;
+
+  @for $i from 1 through str-length($chars) {
+    $char: str-slice($chars, $i, $i);
+
+    @if not (index(map-keys($numbers), $char) or $char == '.') {
+      $unit: map-get($units, str-slice($chars, $i));
+      @if (not $unit) {
+        @error 'jigsass-str-to-number: #{str-slice($chars, $i)} is not a valid CSS unit';
+      }
+
+      @return $neg * $num * $unit;
+    }
+
+    @if ($char == '.') {
+      $has-decimal: true;
+    }
+
+    @else if (not $has-decimal) {
+      $num: $num * 10 + map-get($numbers, $char);
+    }
+
+    @else {
+      $decimal: $decimal * 10;
+      $num: $num + map-get($numbers, $char) / $decimal;
+    }
+  }
+
+  @return $neg * $num;
+}
+
+
+/// Trim whitespace from a string
+/// ---
+/// @param {String} $string
+/// @param {Boolean} $leading [true]
+/// @param {Boolean} $trailing [true]
+///   Indicates if trailing whitespace will be removed
+/// ---
+/// @return {String} - The trimmed string
+/// ---
+@function jigsass-str-trim($string, $leading: true, $trailing: true) {
+  @if ($leading and str-index($string, ' ') == 1) {
+    $string: str-slice($string, 2);
+
+    @if (str-index($string, ' ') == 1) {
+      $string: jigsass-str-trim($string, true, false);
+    }
+  }
+  @if ($trailing and str-slice($string, -1) == ' ') {
+    $string: str-slice($string, 1, -2);
+
+    @if (str-slice($string, -1) == ' ') {
+      $string: jigsass-str-trim($string, false, true);
+    }
+  }
+
+  @return $string;
+}
+
+/// Split a string into a list of strings by separating it into substrings.
+/// A sass implementation of Javascript's `String.prototype.split()` sans the
+/// ability to pass a regular expression as the separator.
+/// ---
+/// @param {String} $string
+///   The string to split
+/// @param {String} $separator [false]
+///   Specifies the character(s) to use for separating the string.
+///   If `$separator` is omitted, the List returned contains one item
+///   consisting of the entire string. If `$separator` is an empty
+///   string, the string is converted to a list of characters.
+/// @param {Number | Boolean} $limit [false]
+///   Integer specifying a limit on the number of splits to be found.
+///   `jigsass-str-split` will splits on every match of separator,
+///   until the number of split items match the limit or the string
+///   falls short of separator.
+/// ---
+/// @return {List}
+/// ---
+@function jigsass-str-split($string, $separator: false, $limit: false) {
+  $_list: ();
+
+  @if ($separator == '') {
+    @for $i from 1 through str-length($string) {
+      $_list: append($_list, str-slice($string, $i, $i), comma);
+    }
+
+    @return $_list;
+  }
+
+  @if (not $separator or not str-index($string, $separator)) {
+    @return append($_list, $string, comma);
+  }
+
+  $_index: str-index($string, $separator);
+  $i: 1;
+
+  @while (if($limit, $_index and $i <= $limit, $_index)) {
+    $_item: str-slice($string, 1, $_index - 1);
+
+    // Trim leading whitespace from `$_item`, if there is only
+    // a single leading space character after the separator, and
+    // no trailing whitespace. Like Javascript's `String.split()`.
+    @if (
+      str-slice($_item, 1, 1) == ' ' and
+      str-slice($_item, 2, 2) != ' ' and
+      str-slice($_item, -1) != ' '
+    ) {
+      $_item: jigsass-str-trim($_item);
+    }
+
+    $string: str-slice($string, $_index + str-length($separator));
+    $_list: append($_list, $_item, comma);
+    $_index: str-index($string, $separator);
+    $i: $i + 1;
+  }
+
+  @if (not $limit or $i <= $limit) {
+    // Trim leading whitespace from last item in `$string`
+    @if (
+      str-slice($string, 1, 1) == ' ' and
+      str-slice($string, 2, 2) != ' ' and
+      str-slice($string, -1) != ' '
+    ) {
+      $_list: append($_list, jigsass-str-trim($string), comma);
+    }
+    @else {
+      $_list: append($_list, $string, comma);
+    }
+  }
+
+  @return $_list;
+}
+
+
+/// Replace a substring inside a string
+/// ---
+/// @param {String} $string
+///   The string to search in
+/// @param {String} $substr
+///   The substring to search for
+/// @param {String} $new-substr
+///   The substring to replace `$substr` with
+/// @param {Boolean} $replace-all
+///   Replace all instances of `$substr`, or just the first
+/// @param {Boolean} $match-case
+/// ---
+/// @return {String} The replaced string
+/// ---
+@function jigsass-str-replace(
+  $string,
+  $substr,
+  $new-substr: null,
+  $replace-all: true,
+  $match-case: true
+) {
+  // Coerce arguments into strings
+  $string: inspect($string);
+  $surstr: inspect($substr);
+  $new-surstr: inspect($new-substr);
+
+  @if ($string == $substr) { @return $new-substr; }
+
+  $sub-index: if(
+    $match-case,
+    str-index($string, $substr),
+    str-index(to-lower-case($string), $substr)
+  );
+
+  @if ($sub-index) {
+    $sub-end-index: $sub-index + str-length($substr);
+
+    $prefix: if($sub-index == 1, '', str-slice($string, 1, ($sub-index - 1)));
+    $suffix: str-slice($string, $sub-end-index);
+
+    // Recurse if replace all.
+    @if ($replace-all and str-index($suffix, $substr)) {
+      $suffix: jigsass-str-replace(
+        $suffix,
+        $substr,
+        $new-substr,
+        true,
+        $match-case
+      );
+    }
+
+    $_string: $prefix + ($new-substr or '') + $suffix;
+    @return unquote(inspect($_string));
+  }
+
+  @return unquote(inspect($string));
+}
