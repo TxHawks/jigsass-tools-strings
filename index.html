@@ -1,0 +1,162 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Jigsass-tools-strings - v1.0.0</title><link rel="stylesheet" href="assets/css/main.css"><script type="text/javascript">WebFontConfig={google:{families:["Roboto:400,100,300,500:latin"]}},function(){var e=document.createElement("script");e.src="https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js",e.type="text/javascript",e.async="true";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}();</script><meta name="viewport" content="width=device-width"><meta content="IE=edge, chrome=1" http-equiv="X-UA-Compatible"><!-- Open Graph tags --><meta property="og:title" content="Jigsass-tools-strings - SassDoc"><meta property="og:type" content="website"><meta property="og:description" content="<p>String manipulation helper functions</p>
+"><!-- Thanks to Sass-lang.com for the icons --><link href="assets/images/favicon.png" rel="shortcut icon"></head><body><aside class="sidebar" role="nav"><div class="sidebar__header"><img class="sidebar__logo" src="assets/images/favicon.png"></div><div class="sidebar__body"><button type="button" class="btn-toggle js-btn-toggle" data-alt="Open all">Close all</button><p class="sidebar__item sidebar__item--heading" data-slug="strings"><a href="#strings">strings</a></p><div><p class="sidebar__item sidebar__item--sub-heading" data-slug="strings-function"><a href="#strings-function">functions</a></p><ul class="list-unstyled"><li class="sidebar__item sassdoc__item" data-name="jigsass-str-to-number" data-type="function"><a href="#function-jigsass-str-to-number">jigsass-str-to-number</a></li><li class="sidebar__item sassdoc__item" data-name="jigsass-str-trim" data-type="function"><a href="#function-jigsass-str-trim">jigsass-str-trim</a></li><li class="sidebar__item sassdoc__item" data-name="jigsass-str-split" data-type="function"><a href="#function-jigsass-str-split">jigsass-str-split</a></li><li class="sidebar__item sassdoc__item" data-name="jigsass-str-replace" data-type="function"><a href="#function-jigsass-str-replace">jigsass-str-replace</a></li></ul></div></div></aside><article class="main" role="main"><header class="header" role="banner"><div class="container"><h1 class="header__title">Jigsass-tools-strings - 1.0.0</h1><div class="sassdoc__searchbar searchbar"><label for="js-search-input" class="visually-hidden">Search</label><div class="searchbar__form" id="js-search"><input name="search" type="search" class="searchbar__field" autocomplete="off" autofocus id="js-search-input" placeholder="Search"><ul class="searchbar__suggestions" id="js-search-suggestions"></ul></div></div></div></header><section class="main__section"><div class="container"><h1 id="jigsass-tools-strings">JigSass Tools Strings</h1><p><a href="https://npmjs.org/package/jigsass-tools-strings"><img src="https://badge.fury.io/js/jigsass-tools-strings.svg" alt="NPM version"></a> <a href="https://david-dm.org/TxHawks/jigsass-tools-strings"><img src="https://david-dm.org/TxHawks/jigsass-tools-strings.svg?theme=shields.io" alt="Dependency Status"></a></p><blockquote><p>String manipulation helper functions</p></blockquote><h2 id="installation">Installation</h2><p>Using npm:</p><pre><code class="lang-sh">npm i -S jigsass-tools-strings
+</code></pre><h2 id="usage">Usage</h2><pre><code class="lang-scss">@import &#39;path/to/jigsass-tools-strings&#39;;
+</code></pre><p><strong>License:</strong> MIT</p></div></section><section class="main__section"><h1 class="main__heading" id="strings"><div class="container">strings</div></h1><section class="main__sub-section" id="strings-function"><h2 class="main__heading--secondary"><div class="container">functions</div></h2><section class="main__item container item" id="function-jigsass-str-to-number"><h3 class="item__heading"><a class="item__name" href="#function-jigsass-str-to-number">jigsass-str-to-number</a></h3><div class="item__code-wrapper"><pre class="item__code item__code--togglable language-scss" data-current-state="collapsed" data-expanded="@function jigsass-str-to-number($number-string) { 
+  $numbers: (&#39;0&#39;: 0, &#39;1&#39;: 1, &#39;2&#39;: 2, &#39;3&#39;: 3, &#39;4&#39;: 4, &#39;5&#39;: 5, &#39;6&#39;: 6, &#39;7&#39;: 7, &#39;8&#39;: 8, &#39;9&#39;: 9);
+  $units: (
+    &#39;px&#39;: 1px,
+    &#39;cm&#39;: 1cm,
+    &#39;mm&#39;: 1mm,
+    &#39;%&#39;: 1%,
+    &#39;ch&#39;: 1ch,
+    &#39;pc&#39;: 1pc,
+    &#39;in&#39;: 1in,
+    &#39;em&#39;: 1em,
+    &#39;rem&#39;: 1rem,
+    &#39;pt&#39;: 1pt,
+    &#39;ex&#39;: 1ex,
+    &#39;vw&#39;: 1vw,
+    &#39;vh&#39;: 1vh,
+    &#39;vmin&#39;: 1vmin,
+    &#39;vmax&#39;: 1vmax
+  );
+  $neg: if(str-slice($num-string, 1, 1) == &#39;-&#39;, -1, 1);
+  $chars: if($neg  == -1, str-slice($num-string, 2), $num-string);
+  $has-decimal: false;
+  $decimal: 1;
+  $num: 0;
+
+  @for $i from 1 through str-length($chars) {
+    $char: str-slice($chars, $i, $i);
+
+    @if not (index(map-keys($numbers), $char) or $char == &#39;.&#39;) {
+      $unit: map-get($units, str-slice($chars, $i));
+      @if (not $unit) {
+        @error &#39;jigsass-str-to-number: #{str-slice($chars, $i)} is not a valid CSS unit&#39;;
+      }
+
+      @return $neg * $num * $unit;
+    }
+
+    @if ($char == &#39;.&#39;) {
+      $has-decimal: true;
+    }
+
+    @else if (not $has-decimal) {
+      $num: $num * 10 + map-get($numbers, $char);
+    }
+
+    @else {
+      $decimal: $decimal * 10;
+      $num: $num + map-get($numbers, $char) / $decimal;
+    }
+  }
+
+  @return $neg * $num;
+ }" data-collapsed="@function jigsass-str-to-number($number-string) { ... }"><code>@function jigsass-str-to-number($number-string) { ... }</code></pre></div><h3 class="item__sub-heading">Description</h3><div class="item__description"><p>Convert a string representing a number into an actual number</p></div><h3 class="item__sub-heading">Parameters</h3><table class="item__parameters"><thead><tr><th scope="col"><span class="visually-hidden">parameter</span>Name</th><th scope="col"><span class="visually-hidden">parameter</span>Description</th><th scope="col"><span class="visually-hidden">parameter</span>Type</th><th scope="col"><span class="visually-hidden">parameter</span>Default value</th></tr></thead><tbody><tr class="item__parameter"><th scope="row" data-label="name"><code>$number-string</code></th><td data-label="desc">&mdash;<span class="visually-hidden">none</span></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr></tbody></table><h3 class="item__sub-heading">Returns</h3><div class="item__description item__description--inline"><code>Number</code></div><h3 class="item__sub-heading">Throws</h3><ul class="list-unstyled"><li><p>jigsass-str-to-number: #{str-slice($chars, $i)} is not a valid CSS unit</p></li></ul></section><section class="main__item container item" id="function-jigsass-str-trim"><h3 class="item__heading"><a class="item__name" href="#function-jigsass-str-trim">jigsass-str-trim</a></h3><div class="item__code-wrapper"><pre class="item__code item__code--togglable language-scss" data-current-state="collapsed" data-expanded="@function jigsass-str-trim($string, $leading: true, $trailing: true) { 
+  @if ($leading and str-index($string, &#39; &#39;) == 1) {
+    $string: str-slice($string, 2);
+
+    @if (str-index($string, &#39; &#39;) == 1) {
+      $string: jigsass-str-trim($string, true, false);
+    }
+  }
+  @if ($trailing and str-slice($string, -1) == &#39; &#39;) {
+    $string: str-slice($string, 1, -2);
+
+    @if (str-slice($string, -1) == &#39; &#39;) {
+      $string: jigsass-str-trim($string, false, true);
+    }
+  }
+
+  @return $string;
+ }" data-collapsed="@function jigsass-str-trim($string, $leading: true, $trailing: true) { ... }"><code>@function jigsass-str-trim($string, $leading: true, $trailing: true) { ... }</code></pre></div><h3 class="item__sub-heading">Description</h3><div class="item__description"><p>Trim whitespace from a string</p></div><h3 class="item__sub-heading">Parameters</h3><table class="item__parameters"><thead><tr><th scope="col"><span class="visually-hidden">parameter</span>Name</th><th scope="col"><span class="visually-hidden">parameter</span>Description</th><th scope="col"><span class="visually-hidden">parameter</span>Type</th><th scope="col"><span class="visually-hidden">parameter</span>Default value</th></tr></thead><tbody><tr class="item__parameter"><th scope="row" data-label="name"><code>$string</code></th><td data-label="desc">&mdash;<span class="visually-hidden">none</span></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$leading</code></th><td data-label="desc">&mdash;<span class="visually-hidden">none</span></td><td data-label="type"><code>Boolean</code></td><td data-label="default"><code>true</code></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$trailing</code></th><td data-label="desc"><p>Indicates if trailing whitespace will be removed</p></td><td data-label="type"><code>Boolean</code></td><td data-label="default"><code>true</code></td></tr></tbody></table><h3 class="item__sub-heading">Returns</h3><div class="item__description item__description--inline"><code>String</code> &mdash;<p>The trimmed string</p></div><h3 class="item__sub-heading">Used by</h3><ul class="list-unstyled"><li><span class="item__cross-type">[function]</span> <a href="#function-jigsass-str-split"><code>jigsass-str-split</code></a></li></ul></section><section class="main__item container item" id="function-jigsass-str-split"><h3 class="item__heading"><a class="item__name" href="#function-jigsass-str-split">jigsass-str-split</a></h3><div class="item__code-wrapper"><pre class="item__code item__code--togglable language-scss" data-current-state="collapsed" data-expanded="@function jigsass-str-split($string, $separator: false, $limit: false) { 
+  $_list: ();
+
+  @if ($separator == &#39;&#39;) {
+    @for $i from 1 through str-length($string) {
+      $_list: append($_list, str-slice($string, $i, $i), comma);
+    }
+
+    @return $_list;
+  }
+
+  @if (not $separator or not str-index($string, $separator)) {
+    @return append($_list, $string, comma);
+  }
+
+  $_index: str-index($string, $separator);
+  $i: 1;
+
+  @while (if($limit, $_index and $i &lt;= $limit, $_index)) {
+    $_item: str-slice($string, 1, $_index - 1);
+
+    // Trim leading whitespace from `$_item`, if there is only
+    // a single leading space character after the separator, and
+    // no trailing whitespace. Like Javascript&#39;s `String.split()`.
+    @if (
+      str-slice($_item, 1, 1) == &#39; &#39; and
+      str-slice($_item, 2, 2) != &#39; &#39; and
+      str-slice($_item, -1) != &#39; &#39;
+    ) {
+      $_item: jigsass-str-trim($_item);
+    }
+
+    $string: str-slice($string, $_index + str-length($separator));
+    $_list: append($_list, $_item, comma);
+    $_index: str-index($string, $separator);
+    $i: $i + 1;
+  }
+
+  @if (not $limit or $i &lt;= $limit) {
+    // Trim leading whitespace from last item in `$string`
+    @if (
+      str-slice($string, 1, 1) == &#39; &#39; and
+      str-slice($string, 2, 2) != &#39; &#39; and
+      str-slice($string, -1) != &#39; &#39;
+    ) {
+      $_list: append($_list, jigsass-str-trim($string), comma);
+    }
+    @else {
+      $_list: append($_list, $string, comma);
+    }
+  }
+
+  @return $_list;
+ }" data-collapsed="@function jigsass-str-split($string, $separator: false, $limit: false) { ... }"><code>@function jigsass-str-split($string, $separator: false, $limit: false) { ... }</code></pre></div><h3 class="item__sub-heading">Description</h3><div class="item__description"><p>Split a string into a list of strings by separating it into substrings. A sass implementation of Javascript&#39;s <code>String.prototype.split()</code> sans the ability to pass a regular expression as the separator.</p></div><h3 class="item__sub-heading">Parameters</h3><table class="item__parameters"><thead><tr><th scope="col"><span class="visually-hidden">parameter</span>Name</th><th scope="col"><span class="visually-hidden">parameter</span>Description</th><th scope="col"><span class="visually-hidden">parameter</span>Type</th><th scope="col"><span class="visually-hidden">parameter</span>Default value</th></tr></thead><tbody><tr class="item__parameter"><th scope="row" data-label="name"><code>$string</code></th><td data-label="desc"><p>The string to split</p></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$separator</code></th><td data-label="desc"><p>Specifies the character(s) to use for separating the string. If <code>$separator</code> is omitted, the List returned contains one item consisting of the entire string. If <code>$separator</code> is an empty string, the string is converted to a list of characters.</p></td><td data-label="type"><code>String</code></td><td data-label="default"><code>false</code></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$limit</code></th><td data-label="desc"><p>Integer specifying a limit on the number of splits to be found. <code>jigsass-str-split</code> will splits on every match of separator, until the number of split items match the limit or the string falls short of separator.</p></td><td data-label="type"><code>Number</code> or <code>Boolean</code></td><td data-label="default"><code>false</code></td></tr></tbody></table><h3 class="item__sub-heading">Returns</h3><div class="item__description item__description--inline"><code>List</code></div><h3 class="item__sub-heading">Requires</h3><ul class="list-unstyled"><li class="item__description item__description--inline"><span class="item__cross-type">[function]</span> <a href="#function-jigsass-str-trim"><code>jigsass-str-trim</code></a></li></ul></section><section class="main__item container item" id="function-jigsass-str-replace"><h3 class="item__heading"><a class="item__name" href="#function-jigsass-str-replace">jigsass-str-replace</a></h3><div class="item__code-wrapper"><pre class="item__code item__code--togglable language-scss" data-current-state="collapsed" data-expanded="@function jigsass-str-replace($string, $substr, $new-substr, $replace-all, $match-case) { 
+  // Coerce arguments into strings
+  $string: inspect($string);
+  $surstr: inspect($substr);
+  $new-surstr: inspect($new-substr);
+
+  @if ($string == $substr) { @return $new-substr; }
+
+  $sub-index: if(
+    $match-case,
+    str-index($string, $substr),
+    str-index(to-lower-case($string), $substr)
+  );
+
+  @if ($sub-index) {
+    $sub-end-index: $sub-index + str-length($substr);
+
+    $prefix: if($sub-index == 1, &#39;&#39;, str-slice($string, 1, ($sub-index - 1)));
+    $suffix: str-slice($string, $sub-end-index);
+
+    // Recurse if replace all.
+    @if ($replace-all and str-index($suffix, $substr)) {
+      $suffix: jigsass-str-replace(
+        $suffix,
+        $substr,
+        $new-substr,
+        true,
+        $match-case
+      );
+    }
+
+    $_string: $prefix + ($new-substr or &#39;&#39;) + $suffix;
+    @return unquote(inspect($_string));
+  }
+
+  @return unquote(inspect($string));
+ }" data-collapsed="@function jigsass-str-replace($string, $substr, $new-substr, $replace-all, $match-case) { ... }"><code>@function jigsass-str-replace($string, $substr, $new-substr, $replace-all, $match-case) { ... }</code></pre></div><h3 class="item__sub-heading">Description</h3><div class="item__description"><p>Replace a substring inside a string</p></div><h3 class="item__sub-heading">Parameters</h3><table class="item__parameters"><thead><tr><th scope="col"><span class="visually-hidden">parameter</span>Name</th><th scope="col"><span class="visually-hidden">parameter</span>Description</th><th scope="col"><span class="visually-hidden">parameter</span>Type</th><th scope="col"><span class="visually-hidden">parameter</span>Default value</th></tr></thead><tbody><tr class="item__parameter"><th scope="row" data-label="name"><code>$string</code></th><td data-label="desc"><p>The string to search in</p></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$substr</code></th><td data-label="desc"><p>The substring to search for</p></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$new-substr</code></th><td data-label="desc"><p>The substring to replace <code>$substr</code> with</p></td><td data-label="type"><code>String</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$replace-all</code></th><td data-label="desc"><p>Replace all instances of <code>$substr</code>, or just the first</p></td><td data-label="type"><code>Boolean</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr><tr class="item__parameter"><th scope="row" data-label="name"><code>$match-case</code></th><td data-label="desc">&mdash;<span class="visually-hidden">none</span></td><td data-label="type"><code>Boolean</code></td><td data-label="default">&mdash;<span class="visually-hidden">none</span></td></tr></tbody></table><h3 class="item__sub-heading">Returns</h3><div class="item__description item__description--inline"><code>String</code> &mdash;<p>The replaced string</p></div></section></section></section><footer class="footer" role="contentinfo"><div class="container"><div class="footer__project-info project-info"><!-- Name and URL --><span class="project-info__name">Jigsass-tools-strings</span><!-- Version --> <span class="project-info__version">- v1.0.0</span><!-- License --> <span class="project-info__license">, under MIT</span></div><a class="footer__watermark" href="http://sassdoc.com"><img src="assets/images/logo_light_inline.svg" alt="SassDoc Logo"></a></div></footer></article><script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script><script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script><script src="assets/js/main.min.js"></script></body></html>
