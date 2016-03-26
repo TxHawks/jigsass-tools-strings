@@ -18,7 +18,11 @@
     &#39;vw&#39;: 1vw,
     &#39;vh&#39;: 1vh,
     &#39;vmin&#39;: 1vmin,
-    &#39;vmax&#39;: 1vmax
+    &#39;vmax&#39;: 1vmax,
+    &#39;deg&#39;: 1deg,
+    &#39;turn&#39;: 1turn,
+    &#39;grad&#39;: 1grad,
+    &#39;rad&#39;: 1rad
   );
   $neg: if(str-slice($num-string, 1, 1) == &#39;-&#39;, -1, 1);
   $chars: if($neg  == -1, str-slice($num-string, 2), $num-string);
