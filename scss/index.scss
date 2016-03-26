@@ -42,7 +42,11 @@
     'vw': 1vw,
     'vh': 1vh,
     'vmin': 1vmin,
-    'vmax': 1vmax
+    'vmax': 1vmax,
+    'deg': 1deg,
+    'turn': 1turn,
+    'grad': 1grad,
+    'rad': 1rad
   );
   $neg: if(str-slice($num-string, 1, 1) == '-', -1, 1);
   $chars: if($neg  == -1, str-slice($num-string, 2), $num-string);
