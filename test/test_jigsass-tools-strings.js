@@ -151,7 +151,7 @@ describe('jigsass-tools-strings', () => {
 
 
   describe('jigsass-str-replace [Function]', () => {
-    it('Replaces a substring in the middle of a sring', () => {
+    it('Replaces a substring in the middle of a string', () => {
       sassaby.func('jigsass-str-replace')
         .calledWithArgs('A string to search in', 'to', 'we can')
         .equals('A string we can search in');
@@ -185,6 +185,14 @@ describe('jigsass-tools-strings', () => {
       sassaby.func('jigsass-str-replace')
         .calledWithArgs('foo Bar baz', 'bar', 'Quax', '$match-case: false')
         .equals('foo Quax baz');
+    });
+  });
+
+  describe('jigsass-str-escape [Function]', () => {
+    it('Escapes special characters in a string', () => {
+      sassaby.func('jigsass-str-escape')
+        .calledWithArgs('"a string w%th special ch.arac:ters"')
+        .equals('a\\ string\\ w\\%th\\ special\\ ch\\.arac\\:ters');
     });
   });
 });
