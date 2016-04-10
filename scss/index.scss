@@ -244,3 +244,43 @@
 
   @return unquote(inspect($string));
 }
+
+
+/// Escape special characters in a string.
+/// ---
+/// @param {String} $str
+///   The string to escape
+/// ---
+/// @return {String} The escaped string
+/// ---
+@function jigsass-str-escape($str, $for-interpolation: false) {
+  //stylelint-disable
+  $num-chars: '0' '1' '2' '3' '4' '5' '6' '7' '8' '9';
+  $esc-chars: ' ' '!' '#' '$' '%' '&' '(' ')' '*' '+' ',' '.' '/' ':' ';' '<' '=' '>' '?' '@' '[' ']' '^' '`' '{' '|' '}' '~';
+  //stylelint-enable
+
+  @if (type-of($str) != string) {
+    // Cast `$str` into a string, if needed
+    $str: inspect($str);
+  }
+  @each $char in $esc-chars {
+    @if (str-index($str, $char)) {
+      $escaped-char: '\\#{unquote($char)}';
+      $str: jigsass-str-replace($str, $char, unquote($escaped-char));
+    }
+  }
+
+  // Fix ruby and libsass differences.
+	// stylelint-disable
+  @if (index('"' "'", str-slice($str, 1, 1))) {
+    $str: str-slice($str, 2);
+  }
+  @if (index('"' "'", str-slice($str, -1))) {
+    $str: str-slice($str, 1, -2);
+  }
+  // stylelint-enable
+  // End fix
+
+
+  @return $str;
+}
