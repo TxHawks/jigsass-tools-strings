@@ -17,6 +17,20 @@
 // Functions
 // -------------------------------------
 
+/// Determines if `jigsass-str-to-number` will warn when a
+/// string cannot be converted to a number
+/// ---
+/// @type Boolean
+/// ---
+$jigsass-str-to-number-suppress-warning: false !default;
+
+
+
+
+
+// -------------------------------------
+// Functions
+// -------------------------------------
 
 /// Convert a string representing a number
 /// into an actual number
@@ -60,7 +74,12 @@
     @if not (index(map-keys($numbers), $char) or $char == '.') {
       $unit: map-get($units, str-slice($chars, $i));
       @if (not $unit) {
-        @error 'jigsass-str-to-number: #{str-slice($chars, $i)} is not a valid CSS unit';
+        @if (not $jigsass-str-to-number-suppress-warning) {
+          @warn 'jigsass-str-to-number: #{$num-string} can not be converted into ' +
+            'a number. Returning it as a #{$type-of($num-string)}';
+        }
+
+        @return $num-string;
       }
 
       @return $neg * $num * $unit;
