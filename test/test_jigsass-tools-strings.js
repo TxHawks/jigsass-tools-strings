@@ -195,4 +195,11 @@ describe('jigsass-tools-strings', () => {
         .equals('a\\ string\\ w\\%th\\ special\\ ch\\.arac\\:ters');
     });
   });
+  describe('jigsass-svg-encode [Function]', () => {
+    it('Encodes svgs for inclusion in css', () => {
+      sassaby.func('jigsass-svg-encode')
+        .calledWithArgs("'<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 300\"><polygon fill=\"#ccc\"  points=\"0,20 0,0 256,0\" /></svg>'")
+        .equals("url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpolygon fill='%23ccc'  points='0,20 0,0 256,0' /%3E%3C/svg%3E\")");
+    });
+  });
 });

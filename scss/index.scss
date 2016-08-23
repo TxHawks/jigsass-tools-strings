@@ -303,3 +303,41 @@ $jigsass-str-to-number-suppress-warning: false !default;
 
   @return $str;
 }
+
+/// Encode an svg string so that it can be used in CSS cross browser with the
+/// smallest footprint
+/// ---
+/// @param {String} $svg-string - The string to encode
+/// ---
+/// @return {String} The encoded svg inside a url function, for use in `content`
+///   or `background-image`
+/// ---
+@function jigsass-svg-encode($svg-string) {
+  $encoded-svg: '';
+  $index: 0;
+  $substitions: '"' '\'', '<' '%3C', '>' '%3E', '&' '%26', '#' '%23';
+
+  // Split string into chunks to avoid
+  // "SystemStackError: stack level too deep"
+  $chunk-length: 2000;
+  $chunks: ceil(str-length($svg-string) / $chunk-length);
+
+  // Loop over chunks
+  @for $i from 1 through $chunks {
+    $chunk: str-slice($svg-string, $index, $index + $chunk-length - 1);
+
+    @each $substition in $substitions {
+      $old: nth($substition, 1);
+      $new: nth($substition, 2);
+
+      $chunk: jigsass-str-replace($chunk, $old, $new);
+    }
+
+    $encoded-svg: $encoded-svg + $chunk;
+    $index: $index + $chunk-length;
+  }
+
+  /* stylelint-disable function-url-quotes,string-quotes */
+  @return url("data:image/svg+xml;charset=utf8,#{$encoded-svg}");
+  /* stylelint-enable function-url-quotes,string-quotes */
+}
